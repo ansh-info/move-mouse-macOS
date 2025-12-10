@@ -143,11 +143,13 @@ def move_cursor_randomly(args: argparse.Namespace) -> None:
     listener_thread.start()
 
     logging.info("Waiting %.1f seconds before starting cursor movement.", args.start_delay)
-    if wait_with_checks(args.start_delay, user_activity):
-        logging.info("User input detected before start; exiting.")
-        stop_listener.set()
-        listener_thread.join(timeout=1)
-        return
+    start_deadline = time.time() + args.start_delay
+    while time.time() < start_deadline:
+        # Ignore user input during the initial delay window.
+        time.sleep(0.1)
+    if user_activity.is_set():
+        logging.info("User input detected during startup delay; ignoring and continuing.")
+        user_activity.clear()
 
     logging.info(
         "Starting cursor movement with intervals between %.1f and %.1f seconds.",
