@@ -79,7 +79,7 @@ def clamp_position(x: float, y: float, width: int, height: int) -> Tuple[float, 
     return max(0, min(x, width - 1)), max(0, min(y, height - 1))
 
 
-def create_mouse_event(x: float, y: float) -> Quartz.CGEventRef:
+def create_mouse_event(x: float, y: float) -> Any:
     """Create a mouse-move event at the provided coordinates."""
     event = Quartz.CGEventCreateMouseEvent(
         None, Quartz.kCGEventMouseMoved, (x, y), Quartz.kCGMouseButtonLeft
@@ -107,6 +107,8 @@ def user_activity_listener(
     pid = os.getpid()
 
     def _callback(_proxy, _event_type, event, _refcon):
+        # Explicitly mark unused parameters for linters.
+        del _proxy, _event_type, _refcon
         source_pid = Quartz.CGEventGetIntegerValueField(
             event, Quartz.kCGEventSourceUnixProcessID
         )
